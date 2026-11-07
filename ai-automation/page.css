@@ -1,0 +1,6 @@
+/* Page-local: fit the longer "Book Your Free 20-Minute Call" label in the header and mobile bar. */
+@media (max-width:760px){
+  .header-cta .btn{white-space:normal;text-align:center;line-height:1.15;font-size:14px;max-width:170px}
+  .mobile-bar .mb-book{font-size:15px;padding:0 10px;text-align:center;line-height:1.15}
+}
+@media (max-width:360px){.header-cta .btn{font-size:13px;max-width:140px}}
