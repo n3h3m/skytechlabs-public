@@ -6,7 +6,7 @@
   if (!root) return;
   var API = 'https://api.cal.com/v2', USER = root.getAttribute('data-user'), EVENT = root.getAttribute('data-event'),
       FALLBACK = root.getAttribute('data-fallback'), LEN = +root.getAttribute('data-length') || 20, SYD = 'Australia/Sydney';
-  var PHONE = root.getAttribute('data-phone'), PHONE_HREF = root.getAttribute('data-tel'), MAIL = root.getAttribute('data-mail');
+  var PHONE = root.getAttribute('data-phone'), PHONE_HREF = root.getAttribute('data-tel');
   function q(s, el) { return (el || root).querySelector(s); }
   var tzSel = q('[data-tz]'), tzNote = q('[data-tznote]'), daysEl = q('[data-days]'), timesEl = q('[data-times]'),
       dayHead = q('[data-dayhead]'), pickEl = q('[data-pick]'), form = q('[data-bk-form]'), doneEl = q('[data-done]'),
@@ -39,7 +39,7 @@
     tzSel.value = tz;
   }
   function tzText() {
-    tzNote.textContent = isSyd() ? 'Same as Sydney time.' : 'Nehem is in Sydney (' + abbr(SYD) + '). Times below are in your time zone.';
+    tzNote.textContent = isSyd() ? 'Same as Sydney time.' : 'We are based in Sydney (' + abbr(SYD) + '). Times below are in your time zone.';
   }
   tzSel.disabled = false; fillTz(false); tzText();
   ['focus', 'pointerdown', 'keydown'].forEach(function (ev) { tzSel.addEventListener(ev, function () { if (!loadedAll) fillTz(true); }); });
@@ -128,7 +128,7 @@
   function showMsg(html) { msgEl.innerHTML = html; msgEl.hidden = false; }
   function empty() {
     timesEl.innerHTML = ''; dayHead.textContent = '';
-    showMsg('<p><strong>No free times in the next 7 days.</strong> Call <a href="' + PHONE_HREF + '">' + PHONE + '</a> or email <a href="mailto:' + MAIL + '">' + MAIL + '</a> and Nehem will find a time that suits you.</p>');
+    showMsg('<p><strong>No free times in the next 7 days.</strong> Call <a href="' + PHONE_HREF + '">' + PHONE + '</a> and we will find a time that suits you.</p>');
   }
   function fail() {
     root.classList.add('bk-ready');
@@ -162,7 +162,7 @@
     if (bad('name', name.length < 2 ? 'Please add your name.' : '')) errs.push('name');
     if (bad('email', /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) ? '' : 'Please check your email address.')) errs.push('email');
     var ph = phoneIntl(phone);
-    if (bad('phone', ph ? '' : 'Please add a mobile number Nehem can call, like 0412 345 678.')) errs.push('phone');
+    if (bad('phone', ph ? '' : 'Please add a mobile number we can call, like 0412 345 678.')) errs.push('phone');
     if (errs.length) { field(errs[0]).focus(); return; }
     // spam: honeypot or a form filled faster than a person can
     if (field('website').value || Date.now() - shownAt < 1500) { booked({ start: chosen.toISOString() }, email, ph, true); return; }
@@ -197,13 +197,13 @@
   function ics(start, end, title) {
     function z(d) { return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, ''); }
     return 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//SkyTech Labs//Booking//EN\r\nBEGIN:VEVENT\r\nUID:' + z(start) + '-skytechlabs\r\nDTSTAMP:' + z(new Date()) +
-      '\r\nDTSTART:' + z(start) + '\r\nDTEND:' + z(end) + '\r\nSUMMARY:' + title + '\r\nDESCRIPTION:Nehem from SkyTech Labs will call you.\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n';
+      '\r\nDTSTART:' + z(start) + '\r\nDTEND:' + z(end) + '\r\nSUMMARY:' + title + '\r\nDESCRIPTION:SkyTech Labs will call you.\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n';
   }
   function booked(data, email, ph, quiet) {
     var start = new Date(data.start || chosen), end = new Date(start.getTime() + LEN * 6e4), title = 'Free 20-minute call with SkyTech Labs';
     function z(d) { return d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, ''); }
     var g = 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent(title) + '&dates=' + z(start) + '/' + z(end) +
-      '&details=' + encodeURIComponent('Nehem from SkyTech Labs will call you on ' + ph + '.');
+      '&details=' + encodeURIComponent('SkyTech Labs will call you on ' + ph + '.');
     var blob = URL.createObjectURL(new Blob([ics(start, end, title)], { type: 'text/calendar' }));
     form.hidden = true; pickEl.hidden = true; msgEl.hidden = true; doneEl.hidden = false;
     q('[data-done-when]').textContent = when(start);

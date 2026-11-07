@@ -149,7 +149,7 @@
           form.classList.add('form-done');
           track('form_submit', { form_id: 'enquiry', intent: data.intent || '' });
           showStatus('ok', '<strong>Thanks, ' + esc(data.name.trim().split(' ')[0]) + '. Got it.</strong>' +
-            '<p>' + (data.intent === 'email' ? 'Nehem will reply by email.' : 'Nehem will ring you to lock in your free 20-minute call.') +
+            '<p>' + (data.intent === 'email' ? 'We will reply by email.' : 'We will ring you to lock in your free 20-minute call.') +
             ' Your reference is <strong>' + esc(r.body.ref) + '</strong>.</p>');
           status.focus();
         } else if (r.status === 422 && r.body && r.body.fields) {
@@ -158,10 +158,10 @@
           showStatus('err', '<strong>Please check the highlighted fields.</strong>');
           if (f) f.focus();
         } else if (r.status === 429) {
-          showStatus('err', '<strong>Too many enquiries from this connection.</strong><p>Please call <a href="' + form.getAttribute('data-tel') + '">' + form.getAttribute('data-phone') + '</a> or email <a href="mailto:nehem@skytechlabs.com.au">nehem@skytechlabs.com.au</a>.</p>');
+          showStatus('err', '<strong>Too many enquiries from this connection.</strong><p>Please call <a href="' + form.getAttribute('data-tel') + '">' + form.getAttribute('data-phone') + '</a>.</p>');
         } else { throw new Error('bad status'); }
       }).catch(function () {
-        showStatus('err', '<strong>Sorry, that didn\'t send.</strong><p>Please try again, or call <a href="' + form.getAttribute('data-tel') + '">' + form.getAttribute('data-phone') + '</a> or email <a href="mailto:nehem@skytechlabs.com.au">nehem@skytechlabs.com.au</a>.</p>');
+        showStatus('err', '<strong>Sorry, that didn\'t send.</strong><p>Please try again, or call <a href="' + form.getAttribute('data-tel') + '">' + form.getAttribute('data-phone') + '</a>.</p>');
       }).then(function () { btn.disabled = false; if (btn.textContent === 'Sending…') btn.innerHTML = btnHtml; });
     });
   }
