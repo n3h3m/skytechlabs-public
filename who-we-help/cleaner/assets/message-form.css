@@ -19,3 +19,6 @@
 /* Existing pencil artwork supports the content column only. */
 .cleaner-message-book .cm-content-art{display:flex;align-items:center;justify-content:center;gap:12px;margin:30px 0 0;padding:14px;background-color:var(--paper);background-clip:padding-box;border:10px solid transparent;border-image:var(--sk-card2) var(--skw)}
 .cleaner-message-book .cm-content-art img{width:calc(50% - 6px);max-width:190px;height:auto;min-width:0}
+
+/* Enquiry CTAs land on the actual form, below the sticky header, not the content column. */
+#cleaner-message-form{scroll-margin-top:calc(var(--hdr,80px) + 20px)}
