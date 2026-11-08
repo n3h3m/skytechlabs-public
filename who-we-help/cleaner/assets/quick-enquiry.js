@@ -1,9 +1,9 @@
-/* Onsite four-field callback: existing SkyTech Worker + server-only Web3Forms.
+/* Onsite four-field callback: official browser-side Web3Forms integration.
  * No native app navigation, visitor email, browser persistence or PII analytics.
  * The separate full-length SMS/WhatsApp form is deliberately unchanged. */
 (function (root) {
   'use strict';
-  var ENDPOINT = 'https://skytech-enquiry.nehemiah.workers.dev/callback';
+  var ENDPOINT = 'https://api.web3forms.com/submit';
   var YEARS = ['Not started yet','Less than 1 year','1–2 years','3–5 years','6–10 years','More than 10 years'];
   function normalizePhone(input) {
     var value = String(input || '').trim();
@@ -25,16 +25,20 @@
     if (!/^\d+$/.test(val('cleaners')) || Number(val('cleaners')) > 100000) errors.cleaners = 'Please enter a whole number of cleaners. Enter 0 if you work solo.';
     return errors;
   }
-  var api = {normalizePhone:normalizePhone,validateData:validateData,ENDPOINT:ENDPOINT,YEARS:YEARS};
+  function validAccessKey(value) { return /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(String(value || '')); }
+  var api = {validAccessKey:validAccessKey,normalizePhone:normalizePhone,validateData:validateData,ENDPOINT:ENDPOINT,YEARS:YEARS};
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (!root.document) return;
   var doc = root.document, dialog = doc.getElementById('cleaner-quick-dialog');
   if (!dialog || typeof dialog.showModal !== 'function' || !root.fetch || !root.crypto || !root.crypto.randomUUID || !root.AbortController) return; // Original form-anchor fallback.
   var form = doc.getElementById('cleaner-quick-form'), title = doc.getElementById('qcm-title');
+  // This provider key is public by design. Never use the legacy Worker's private secret.
+  var accessKey = form.elements.access_key && form.elements.access_key.value.trim();
+  if (!validAccessKey(accessKey)) return; // Hold/unconfigured build: retain the original full-form anchors.
   var status = doc.getElementById('qcm-status'), notice = doc.getElementById('qcm-notice');
   var trigger = null, saved = null, noticeTimer = null, hideTimer = null, successTimer = null;
   var submit = doc.getElementById('qcm-submit'), pending = false, completed = false;
-  var startedAt = Date.now(), requestId = null, requestSnapshot = null;
+  var requestId = null, requestSnapshot = null;
   var fields = ['name','phone','years','cleaners'], vv = root.visualViewport;
   function clearErrors() {
     fields.forEach(function (key) { setError(key, ''); });
@@ -89,7 +93,6 @@
   function open(button) {
     if (dialog.open) return;
     trigger = button; hideNotice(); if (!pending) clearErrors(); lock();
-    if (Date.now() - startedAt > 86400000) startedAt = Date.now();
     try { dialog.showModal(); }
     catch (error) { unlock(); root.location.hash = 'cleaner-message-form'; return; }
     dialog.scrollTop = 0;
@@ -135,12 +138,10 @@
   }
   function resetCompleted() {
     completed = false; form.reset(); requestId = null; requestSnapshot = null;
-    startedAt = Date.now(); setPending(false);
+    setPending(false);
   }
-  function failureMessage(error) {
-    if (error === 'rate_limited') return 'Too many requests from this connection. Please try again in an hour.';
-    if (error === 'please_retry' || error === 'processing') return 'Please wait a moment, then try again. Your details are still here.';
-    if (error === 'request_changed') return 'Your request could not be confirmed. Please try again.';
+  function failureMessage(statusCode) {
+    if (statusCode === 429) return 'Too many requests from this connection. Please try again in an hour.';
     return 'Your request could not be confirmed. Please try again. Your details are still here.';
   }
   form.addEventListener('submit',async function (event) {
@@ -153,23 +154,24 @@
     data.phone = normalizePhone(data.phone); data.cleaners = String(Number(data.cleaners));
     var snapshot = JSON.stringify(data);
     if (requestSnapshot !== snapshot) { requestId = root.crypto.randomUUID(); requestSnapshot = snapshot; }
-    var serverFirst = null, controller = new root.AbortController();
+    if (form.elements.botcheck.checked) { showStatus(failureMessage(),true); return; }
+    var controller = new root.AbortController();
     var timeout = root.setTimeout(function () { controller.abort(); },20000);
     setPending(true); showStatus('Sending your callback request…',false);
     try {
       var response = await root.fetch(ENDPOINT, {
-        method:'POST',mode:'cors',credentials:'omit',referrerPolicy:'no-referrer',
+        method:'POST',mode:'cors',credentials:'omit',referrerPolicy:'strict-origin',
         headers:{'Content-Type':'application/json',Accept:'application/json'},signal:controller.signal,
-        body:JSON.stringify({name:data.name,phone:data.phone,years:data.years,cleaners:data.cleaners,
-          website:form.elements.website.value,ts:startedAt,id:requestId,page:root.location.pathname})
+        body:JSON.stringify({access_key:accessKey,from_name:'SkyTech Labs website',subject:'New cleaning callback enquiry',
+          botcheck:false,Name:data.name,'Mobile number':data.phone,'Time in cleaning business':data.years,
+          'Current cleaners':data.cleaners + (Number(data.cleaners) === 0 ? ' (solo operator)' : ''),
+          Request:'Please call me back about AI automation for my cleaning business.',
+          Reference:'STL-' + requestId.replace(/-/g,'').slice(0,8).toUpperCase(),Page:root.location.pathname})
       });
       var result = await response.json();
-      if (!response.ok || !result || result.ok !== true || result.accepted !== true || result.emailed !== true) {
-        if (result && result.fields) {
-          fields.forEach(function (key) { if (result.fields[key]) { setError(key,result.fields[key]); if (!serverFirst) serverFirst = form.elements[key]; } });
-        }
-        if (result && result.error === 'request_changed') { requestId = null; requestSnapshot = null; }
-        showStatus(failureMessage(result && result.error),true);
+      // HTTP alone, opaque CORS responses and legacy Worker acknowledgements are not acceptance.
+      if (response.status !== 200 || !result || result.success !== true) {
+        showStatus(failureMessage(response.status),true);
         return;
       }
       completed = true;
@@ -179,7 +181,7 @@
     } catch (_) {
       showStatus('Your request could not be confirmed. Please try again. Your details are still here.',true);
     } finally {
-      root.clearTimeout(timeout); setPending(false); if (serverFirst && dialog.open) serverFirst.focus(); viewport();
+      root.clearTimeout(timeout); setPending(false); viewport();
     }
   });
   function edit(event) {
