@@ -37,21 +37,18 @@
     var errors = {};
     function val(name) { return String(data[name] == null ? '' : data[name]).trim(); }
     if (!val('name') || val('name').length > 100) errors.name = 'Please enter your name (up to 100 characters).';
-    if (!val('company') || val('company').length > 120) errors.company = 'Please enter your business name (up to 120 characters).';
     if (!normalizePhone(val('phone'))) errors.phone = 'Please enter a valid phone number, with a country code if outside Australia.';
     if (YEARS.indexOf(val('years')) < 0) errors.years = 'Please choose how long you have been in business.';
     if (!/^\d+$/.test(val('cleaners')) || Number(val('cleaners')) > 100000) errors.cleaners = 'Please enter a whole number of cleaners. Enter 0 if you work solo.';
-    if (!val('tools') || val('tools').length > 600) errors.tools = 'Please list your tools/apps, or enter “None yet” (up to 600 characters).';
-    if (val('pain').length > 1200) errors.pain = 'Please keep this to 1,200 characters or fewer.';
+    if (val('tools').length > 600) errors.tools = 'Please keep the tools/apps list to 600 characters or fewer.';
     if (val('email') && (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val('email')) || val('email').length > 254)) errors.email = 'Please enter a valid email address, or leave it blank.';
     return errors;
   }
   function buildMessage(data) {
     var lines = ['Hi Nehem, I’d like to know more about AI automation for my cleaning business. Please contact me.', '',
-      'Name: ' + data.name, 'Business: ' + data.company, 'Mobile: ' + (normalizePhone(data.phone) || data.phone),
-      'Time in cleaning business: ' + data.years, 'Current cleaners: ' + data.cleaners + (Number(data.cleaners) === 0 ? ' (solo operator)' : ''),
-      'Tools / apps: ' + data.tools];
-    if (data.pain) lines.push('', 'What I’d like off my plate: ' + data.pain);
+      'Name: ' + data.name, 'Mobile: ' + (normalizePhone(data.phone) || data.phone),
+      'Time in cleaning business: ' + data.years, 'Current cleaners: ' + data.cleaners + (Number(data.cleaners) === 0 ? ' (solo operator)' : '')];
+    if (String(data.tools || '').trim()) lines.push('Tools / apps: ' + data.tools);
     if (data.email) lines.push('Email: ' + data.email);
     return lines.join('\n');
   }
@@ -64,7 +61,7 @@
   var status = doc.getElementById('cm-status'), fallback = doc.getElementById('cm-fallback'), preview = doc.getElementById('cm-preview');
   function gather() {
     var data = {};
-    ['name','company','phone','years','cleaners','tools','pain','email'].forEach(function (name) { data[name] = form.elements[name].value.trim(); });
+    ['name','phone','years','cleaners','tools','email'].forEach(function (name) { data[name] = form.elements[name].value.trim(); });
     return data;
   }
   function setError(name, text) {
