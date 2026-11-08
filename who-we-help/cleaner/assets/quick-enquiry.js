@@ -1,25 +1,10 @@
-/* Compact cleaner callback enquiry. Same verified Driveway Detailing SMS platform/body
- * convention as message-form.js. The full form script is deliberately unchanged.
- * Opening a draft does not send a message. No endpoint, persistence or PII analytics.
- */
+/* Onsite four-field callback: existing SkyTech Worker + server-only Web3Forms.
+ * No native app navigation, visitor email, browser persistence or PII analytics.
+ * The separate full-length SMS/WhatsApp form is deliberately unchanged. */
 (function (root) {
   'use strict';
-  var PHONE_LOCAL = '0450912500';
+  var ENDPOINT = 'https://skytech-enquiry.nehemiah.workers.dev/callback';
   var YEARS = ['Not started yet','Less than 1 year','1–2 years','3–5 years','6–10 years','More than 10 years'];
-  function smsPlatform(ua) {
-    var s = typeof ua === 'string' ? ua : '';
-    if (/Android/i.test(s)) return 'android';
-    if (/iPhone|iPad|iPod/i.test(s)) return 'ios';
-    return 'other';
-  }
-  function buildSmsUri(phone, body, ua) {
-    var num = String(phone == null ? '' : phone).replace(/\s+/g, '');
-    var text = body == null ? '' : String(body);
-    if (!text) return 'sms:' + num;
-    var sep = smsPlatform(ua) === 'ios' ? '?&body=' : '?body=';
-    return 'sms:' + num + sep + encodeURIComponent(text);
-  }
-  function firstName(name) { return String(name || '').trim().split(/\s+/)[0] || ''; }
   function normalizePhone(input) {
     var value = String(input || '').trim();
     if (!/^[+\d\s().-]+$/.test(value)) return null;
@@ -34,28 +19,22 @@
   function validateData(data) {
     var errors = {};
     function val(name) { return String(data[name] == null ? '' : data[name]).trim(); }
-    if (!val('name') || val('name').length > 100) errors.name = 'Please enter your name (up to 100 characters).';
-    if (!normalizePhone(val('phone'))) errors.phone = 'Please enter a valid phone number, with a country code if outside Australia.';
+    if (!val('name') || val('name').length > 100 || /[\u0000-\u001f\u007f]/.test(val('name'))) errors.name = 'Please enter your name (up to 100 characters).';
+    if (val('phone').length > 30 || !normalizePhone(val('phone'))) errors.phone = 'Please enter a valid phone number, with a country code if outside Australia.';
     if (YEARS.indexOf(val('years')) < 0) errors.years = 'Please choose how long you have been in business.';
     if (!/^\d+$/.test(val('cleaners')) || Number(val('cleaners')) > 100000) errors.cleaners = 'Please enter a whole number of cleaners. Enter 0 if you work solo.';
     return errors;
   }
-  function buildMessage(data) {
-    var lines = ['Hi Nehem, I’d like to know more about AI automation for my cleaning business. Please contact me.', '',
-      'Name: ' + data.name, 'Mobile: ' + (normalizePhone(data.phone) || data.phone),
-      'Time in cleaning business: ' + data.years, 'Current cleaners: ' + data.cleaners + (Number(data.cleaners) === 0 ? ' (solo operator)' : '')];
-    lines.push('', 'Thanks', firstName(data.name));
-    return lines.join('\n');
-  }
-  var api = {smsPlatform:smsPlatform,buildSmsUri:buildSmsUri,normalizePhone:normalizePhone,
-    firstName:firstName,validateData:validateData,buildMessage:buildMessage,PHONE_LOCAL:PHONE_LOCAL,YEARS:YEARS};
+  var api = {normalizePhone:normalizePhone,validateData:validateData,ENDPOINT:ENDPOINT,YEARS:YEARS};
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (!root.document) return;
   var doc = root.document, dialog = doc.getElementById('cleaner-quick-dialog');
-  if (!dialog || typeof dialog.showModal !== 'function') return; // Original form-anchor fallback.
+  if (!dialog || typeof dialog.showModal !== 'function' || !root.fetch || !root.crypto || !root.crypto.randomUUID || !root.AbortController) return; // Original form-anchor fallback.
   var form = doc.getElementById('cleaner-quick-form'), title = doc.getElementById('qcm-title');
   var status = doc.getElementById('qcm-status'), notice = doc.getElementById('qcm-notice');
-  var trigger = null, saved = null, noticeTimer = null, hideTimer = null;
+  var trigger = null, saved = null, noticeTimer = null, hideTimer = null, successTimer = null;
+  var submit = doc.getElementById('qcm-submit'), pending = false, completed = false;
+  var startedAt = Date.now(), requestId = null, requestSnapshot = null;
   var fields = ['name','phone','years','cleaners'], vv = root.visualViewport;
   function clearErrors() {
     fields.forEach(function (key) { setError(key, ''); });
@@ -99,7 +78,7 @@
     notice.hidden = true; notice.classList.remove('qcm-notice-visible');
   }
   function acknowledge() {
-    hideNotice(); notice.textContent = 'Finish sending in Messages. Feel free to keep exploring.';
+    hideNotice(); notice.textContent = 'Thanks for contacting us. We’ll get back to you shortly. Feel free to keep exploring.';
     notice.hidden = false;
     root.requestAnimationFrame(function () { notice.classList.add('qcm-notice-visible'); });
     noticeTimer = root.setTimeout(function () {
@@ -109,7 +88,8 @@
   }
   function open(button) {
     if (dialog.open) return;
-    trigger = button; hideNotice(); clearErrors(); lock();
+    trigger = button; hideNotice(); if (!pending) clearErrors(); lock();
+    if (Date.now() - startedAt > 86400000) startedAt = Date.now();
     try { dialog.showModal(); }
     catch (error) { unlock(); root.location.hash = 'cleaner-message-form'; return; }
     dialog.scrollTop = 0;
@@ -117,6 +97,8 @@
   }
   function close() { if (dialog.open) dialog.close(); }
   dialog.addEventListener('close',function () {
+    root.clearTimeout(successTimer);
+    if (completed) { resetCompleted(); acknowledge(); }
     unlock();
     if (trigger && trigger.isConnected) trigger.focus({preventScroll:true});
   });
@@ -135,23 +117,70 @@
   dialog.addEventListener('keydown',function (event) {
     if (event.key !== 'Tab') return;
     var items = Array.prototype.slice.call(dialog.querySelectorAll('button:not([disabled]),input:not([disabled]),select:not([disabled]),a[href],[tabindex]:not([tabindex="-1"])'))
-      .filter(function (item) { return item.getClientRects().length > 0; });
+      .filter(function (item) { return item.getAttribute('tabindex') !== '-1' && item.getClientRects().length > 0; });
     if (!items.length) return;
     var first = items[0], last = items[items.length - 1];
     if (event.shiftKey && (doc.activeElement === first || doc.activeElement === title)) { event.preventDefault(); last.focus(); }
     else if (!event.shiftKey && doc.activeElement === last) { event.preventDefault(); first.focus(); }
   });
-  form.addEventListener('submit',function (event) {
+  function setPending(value) {
+    pending = value; submit.disabled = value || completed;
+    submit.textContent = value ? 'Sending…' : completed ? 'Request accepted' : 'Request a callback';
+    form.setAttribute('aria-busy',value ? 'true' : 'false');
+    fields.forEach(function (key) { form.elements[key].disabled = value || completed; });
+  }
+  function showStatus(message, error) {
+    status.setAttribute('role',error ? 'alert' : 'status');
+    status.textContent = message; status.hidden = false;
+  }
+  function resetCompleted() {
+    completed = false; form.reset(); requestId = null; requestSnapshot = null;
+    startedAt = Date.now(); setPending(false);
+  }
+  function failureMessage(error) {
+    if (error === 'rate_limited') return 'Too many requests from this connection. Please try again in an hour.';
+    if (error === 'please_retry' || error === 'processing') return 'Please wait a moment, then try again. Your details are still here.';
+    if (error === 'request_changed') return 'Your request could not be confirmed. Please try again.';
+    return 'Your request could not be confirmed. Please try again. Your details are still here.';
+  }
+  form.addEventListener('submit',async function (event) {
     event.preventDefault();
+    if (pending || completed) return;
     var data = gather(), errors = validateData(data), first = null;
     fields.forEach(function (key) { setError(key,errors[key]); if (errors[key] && !first) first = form.elements[key]; });
     status.hidden = !first; status.textContent = first ? 'Please check the highlighted fields.' : '';
     if (first) { first.focus(); viewport(); return; }
-    var uri = buildSmsUri(PHONE_LOCAL,buildMessage(data),root.navigator.userAgent);
-    // Synchronous visitor gesture: request the native composer before any timer/await.
-    try { root.location.href = uri; }
-    catch (error) { status.hidden = false; status.textContent = 'Messages could not open. Please use the message form on this page.'; return; }
-    close(); acknowledge(); // Never a sent/received confirmation.
+    data.phone = normalizePhone(data.phone); data.cleaners = String(Number(data.cleaners));
+    var snapshot = JSON.stringify(data);
+    if (requestSnapshot !== snapshot) { requestId = root.crypto.randomUUID(); requestSnapshot = snapshot; }
+    var serverFirst = null, controller = new root.AbortController();
+    var timeout = root.setTimeout(function () { controller.abort(); },20000);
+    setPending(true); showStatus('Sending your callback request…',false);
+    try {
+      var response = await root.fetch(ENDPOINT, {
+        method:'POST',mode:'cors',credentials:'omit',referrerPolicy:'no-referrer',
+        headers:{'Content-Type':'application/json',Accept:'application/json'},signal:controller.signal,
+        body:JSON.stringify({name:data.name,phone:data.phone,years:data.years,cleaners:data.cleaners,
+          website:form.elements.website.value,ts:startedAt,id:requestId,page:root.location.pathname})
+      });
+      var result = await response.json();
+      if (!response.ok || !result || result.ok !== true || result.accepted !== true || result.emailed !== true) {
+        if (result && result.fields) {
+          fields.forEach(function (key) { if (result.fields[key]) { setError(key,result.fields[key]); if (!serverFirst) serverFirst = form.elements[key]; } });
+        }
+        if (result && result.error === 'request_changed') { requestId = null; requestSnapshot = null; }
+        showStatus(failureMessage(result && result.error),true);
+        return;
+      }
+      completed = true;
+      showStatus('Thanks for contacting us. We’ll get back to you shortly.',false);
+      if (dialog.open) successTimer = root.setTimeout(close,1200);
+      else { resetCompleted(); acknowledge(); }
+    } catch (_) {
+      showStatus('Your request could not be confirmed. Please try again. Your details are still here.',true);
+    } finally {
+      root.clearTimeout(timeout); setPending(false); if (serverFirst && dialog.open) serverFirst.focus(); viewport();
+    }
   });
   function edit(event) {
     var key = event.target.name;

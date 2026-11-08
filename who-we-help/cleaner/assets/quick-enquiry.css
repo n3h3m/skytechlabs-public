@@ -27,3 +27,8 @@ html.qcm-is-open body{position:fixed;top:var(--qcm-page-top,0px);left:0;right:0;
 @media(max-width:420px){.trade-cleaner .header-cta .btn{font-size:13px;padding:8px 9px}.trade-cleaner .site-header .brand-name{font-size:14px}.trade-cleaner .site-header .brand{gap:6px}.trade-cleaner .header-in{gap:12px}.cleaner-quick-dialog{padding:16px}.cleaner-quick-dialog .qcm-title{font-size:22px}.cleaner-quick-dialog .qcm-fields{gap:9px}}
 @media(min-width:761px){.qcm-notice{bottom:24px}}
 @media(prefers-reduced-motion:reduce){.cleaner-quick-dialog,.cleaner-quick-dialog::backdrop,.qcm-notice{transition:none}}
+
+/* Non-required bot trap; never visible or keyboard-focusable. */
+.qcm-trap{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden;pointer-events:none}
+.qcm-submit:disabled{cursor:wait;opacity:.7}
+.cleaner-quick-dialog .qcm-status[role="status"]{color:var(--ink,#121110)}
