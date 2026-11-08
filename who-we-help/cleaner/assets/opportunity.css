@@ -1,0 +1,18 @@
+/* Cleaner-only AI opportunity section; existing pencil cards and blue band. */
+.cleaner-opportunity{padding:80px 0}
+.cleaner-opportunity .co-intro{display:grid;grid-template-columns:minmax(0,1fr) 210px;gap:40px;align-items:center}
+.cleaner-opportunity .co-intro .sub{margin:0 0 18px;color:var(--ink)}
+.cleaner-opportunity .co-art{margin:0;padding:10px;background-color:var(--paper);background-clip:padding-box;border:10px solid transparent;border-image:var(--sk-card2) var(--skw)}
+.cleaner-opportunity .co-art img{display:block;width:100%;height:auto}
+.cleaner-opportunity .co-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:26px;list-style:none;margin:32px 0 0;padding:0}
+.sk .cleaner-opportunity .co-card{display:flex;flex-direction:column;min-width:0;padding:18px 18px 22px}
+.cleaner-opportunity .co-card p+p{margin-top:14px}
+.cleaner-opportunity .co-close{margin-top:32px;max-width:70ch}
+.cleaner-opportunity .co-close p{font-size:19px;line-height:1.5;color:var(--ink);margin:0 0 14px}
+.cleaner-opportunity .co-close .btn{margin-top:10px;max-width:100%;white-space:normal}
+@media(max-width:760px){
+.cleaner-opportunity{padding:56px 0}
+.cleaner-opportunity .co-intro{grid-template-columns:1fr;gap:12px}
+.cleaner-opportunity .co-art{width:150px;justify-self:start}
+.cleaner-opportunity .co-grid{grid-template-columns:1fr;gap:20px}
+}
