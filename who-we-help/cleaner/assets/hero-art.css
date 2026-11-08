@@ -1,0 +1,5 @@
+/* Cleaner HERO ONLY: true portrait art, never stretch/crop the shared illustration. */
+.sk .t-hero-art.cleaner-portrait-art{width:100%;max-width:440px}
+.sk .t-hero-art.cleaner-portrait-art img{display:block;width:100%;height:auto;aspect-ratio:9/13;object-fit:contain}
+@media(max-width:960px){.sk .t-hero-art.cleaner-portrait-art{max-width:300px;justify-self:center}}
+@media(max-width:600px){.sk .t-hero-art.cleaner-portrait-art{max-width:230px}}
