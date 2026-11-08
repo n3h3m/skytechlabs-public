@@ -21,7 +21,13 @@
     var sep = smsPlatform(ua) === 'ios' ? '?&body=' : '?body=';
     return 'sms:' + num + sep + encodeURIComponent(text);
   }
-  function buildWhatsAppUri(body) { return 'https://wa.me/' + PHONE_INTL + '?text=' + encodeURIComponent(body); }
+  function buildWhatsAppUri(body) {
+    var url = new URL('https://api.whatsapp.com/send');
+    url.searchParams.set('phone', PHONE_INTL);
+    url.searchParams.set('text', body);
+    return url.toString();
+  }
+  function firstName(name) { return String(name || '').trim().split(/\s+/)[0] || ''; }
   function normalizePhone(input) {
     var value = String(input || '').trim();
     if (!/^[+\d\s().-]+$/.test(value)) return null;
@@ -50,10 +56,10 @@
       'Time in cleaning business: ' + data.years, 'Current cleaners: ' + data.cleaners + (Number(data.cleaners) === 0 ? ' (solo operator)' : '')];
     if (String(data.tools || '').trim()) lines.push('Tools / apps: ' + data.tools);
     if (data.email) lines.push('Email: ' + data.email);
-    lines.push('', 'Thanks', String(data.name || '').trim());
+    lines.push('', 'Thanks', firstName(data.name));
     return lines.join('\n');
   }
-  var api = {smsPlatform:smsPlatform,buildSmsUri:buildSmsUri,buildWhatsAppUri:buildWhatsAppUri,normalizePhone:normalizePhone,validateData:validateData,buildMessage:buildMessage,PHONE_LOCAL:PHONE_LOCAL,PHONE_INTL:PHONE_INTL};
+  var api = {firstName:firstName,smsPlatform:smsPlatform,buildSmsUri:buildSmsUri,buildWhatsAppUri:buildWhatsAppUri,normalizePhone:normalizePhone,validateData:validateData,buildMessage:buildMessage,PHONE_LOCAL:PHONE_LOCAL,PHONE_INTL:PHONE_INTL};
   if (typeof module === 'object' && module.exports) module.exports = api;
   if (!root.document) return;
   var doc = root.document, form = doc.getElementById('cleaner-message-form');
