@@ -50,6 +50,7 @@
       'Time in cleaning business: ' + data.years, 'Current cleaners: ' + data.cleaners + (Number(data.cleaners) === 0 ? ' (solo operator)' : '')];
     if (String(data.tools || '').trim()) lines.push('Tools / apps: ' + data.tools);
     if (data.email) lines.push('Email: ' + data.email);
+    lines.push('', 'Thanks', String(data.name || '').trim());
     return lines.join('\n');
   }
   var api = {smsPlatform:smsPlatform,buildSmsUri:buildSmsUri,buildWhatsAppUri:buildWhatsAppUri,normalizePhone:normalizePhone,validateData:validateData,buildMessage:buildMessage,PHONE_LOCAL:PHONE_LOCAL,PHONE_INTL:PHONE_INTL};
@@ -76,11 +77,10 @@
     if (first) { first.focus(); return; }
     var body = buildMessage(data);
     preview.value = body; fallback.hidden = false;
-    doc.getElementById('cm-copy-status').textContent = '';
     // Preparing/opening a composer is NOT receipt of a lead. The visitor must press Send.
     if (channel === 'whatsapp') root.open(buildWhatsAppUri(body), '_blank', 'noopener,noreferrer');
     else root.location.href = buildSmsUri(PHONE_LOCAL, body, root.navigator.userAgent);
-    doc.getElementById('cm-draft-title').focus({preventScroll:true});
+    preview.focus({preventScroll:true});
     fallback.scrollIntoView({block:'nearest',behavior:root.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
   }
   sms.disabled = false; wa.disabled = false;
@@ -96,12 +96,5 @@
     if (event.target.name) setError(event.target.name,validateData(gather())[event.target.name]);
     fallback.hidden = true; preview.value = '';
   });
-  doc.getElementById('cm-copy').addEventListener('click',function () {
-    var out = doc.getElementById('cm-copy-status');
-    function selectFallback() { preview.focus(); preview.select(); out.textContent = 'Message selected. Use Copy on your device, then paste it into a message to 0450 912 500.'; }
-    if (!root.navigator.clipboard || !root.navigator.clipboard.writeText) { selectFallback(); return; }
-    root.navigator.clipboard.writeText(preview.value).then(function () {
-      out.textContent = 'Copied. Paste it into your messaging app and press Send to 0450 912 500.';
-    }).catch(selectFallback);
-  });
+
 })(typeof window !== 'undefined' ? window : globalThis);

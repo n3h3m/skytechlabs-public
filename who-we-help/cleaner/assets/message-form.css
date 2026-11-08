@@ -11,8 +11,6 @@
 .cleaner-message-book .cm-buttons .btn{white-space:normal}
 .cleaner-message-book .cm-draft-note{margin-top:22px}
 .cleaner-message-book .cm-fallback{border-top:2px solid var(--ink);padding-top:24px;margin-top:28px}
-.cleaner-message-book .cm-fallback h3{font:400 23px/1.2 var(--display)}
-.cleaner-message-book .cm-fallback p{font-size:15px}
 .cleaner-message-book .cm-fallback .field{margin:18px 0}
 .cleaner-message-book #cm-preview{font-size:15px;min-height:240px}
 .cleaner-message-book .btn:disabled{opacity:.65;cursor:not-allowed}
