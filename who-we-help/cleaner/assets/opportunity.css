@@ -1,18 +1,28 @@
-/* Cleaner-only AI opportunity section; existing pencil cards and blue band. */
-.cleaner-opportunity{padding:80px 0}
-.cleaner-opportunity .co-intro{display:grid;grid-template-columns:minmax(0,1fr) 210px;gap:40px;align-items:center}
-.cleaner-opportunity .co-intro .sub{margin:0 0 18px;color:var(--ink)}
-.cleaner-opportunity .co-art{margin:0;padding:10px;background-color:var(--paper);background-clip:padding-box;border:10px solid transparent;border-image:var(--sk-card2) var(--skw)}
+/* Cleaner-only compact AI section: same ink/cream/blue and pencil artwork. */
+.cleaner-opportunity{padding:48px 0}
+.cleaner-opportunity .kick{margin-bottom:16px}
+.cleaner-opportunity .h2{max-width:27ch;font-size:clamp(34px,4.3vw,56px);margin-bottom:18px}
+.cleaner-opportunity .co-highlight{color:var(--accent)}
+.cleaner-opportunity .sub{max-width:78ch;margin:0;color:var(--paper);font-size:19px}
+.cleaner-opportunity .co-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:26px;list-style:none;margin:28px 0 0;padding:0}
+.cleaner-opportunity .co-theme{display:grid;grid-template-columns:96px minmax(0,1fr);gap:14px;align-items:start;min-width:0}
+.cleaner-opportunity .co-art{margin:0;padding:4px;background-color:var(--paper);background-clip:padding-box;border:8px solid transparent;border-image:var(--sk-card2) var(--skw)}
 .cleaner-opportunity .co-art img{display:block;width:100%;height:auto}
-.cleaner-opportunity .co-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:26px;list-style:none;margin:32px 0 0;padding:0}
-.sk .cleaner-opportunity .co-card{display:flex;flex-direction:column;min-width:0;padding:18px 18px 22px}
-.cleaner-opportunity .co-card p+p{margin-top:14px}
-.cleaner-opportunity .co-close{margin-top:32px;max-width:70ch}
-.cleaner-opportunity .co-close p{font-size:19px;line-height:1.5;color:var(--ink);margin:0 0 14px}
-.cleaner-opportunity .co-close .btn{margin-top:10px;max-width:100%;white-space:normal}
-@media(max-width:760px){
-.cleaner-opportunity{padding:56px 0}
-.cleaner-opportunity .co-intro{grid-template-columns:1fr;gap:12px}
-.cleaner-opportunity .co-art{width:150px;justify-self:start}
-.cleaner-opportunity .co-grid{grid-template-columns:1fr;gap:20px}
+.cleaner-opportunity .co-theme h3{font:400 21px/1.15 var(--display);color:var(--paper);margin:0 0 8px}
+.cleaner-opportunity .co-theme p{font-size:17px;line-height:1.5;color:var(--paper);margin:0}
+.cleaner-opportunity .co-close{display:flex;align-items:center;gap:28px;margin-top:28px}
+.cleaner-opportunity .co-close p{flex:1;min-width:0;font-size:18px;line-height:1.5;color:var(--paper);margin:0}
+.cleaner-opportunity .co-close .btn{flex-shrink:0;max-width:100%;white-space:normal}
+@media(max-width:1000px){
+.cleaner-opportunity .co-theme{grid-template-columns:1fr;gap:12px}
+.cleaner-opportunity .co-art{width:96px}
+.cleaner-opportunity .co-close{align-items:flex-start;flex-direction:column;gap:18px}
+}
+@media(max-width:700px){
+.cleaner-opportunity{padding:36px 0}
+.cleaner-opportunity .co-grid{grid-template-columns:1fr;gap:20px;margin-top:24px}
+.cleaner-opportunity .co-theme{grid-template-columns:80px minmax(0,1fr);gap:14px}
+.cleaner-opportunity .co-art{width:80px}
+.cleaner-opportunity .co-theme h3{font-size:20px}
+.cleaner-opportunity .co-close{margin-top:24px}
 }
