@@ -1,0 +1,34 @@
+/* Shared "Register your interest" popup (assets/js/register-interest.js), used on every page. */
+html.qcm-is-open{scrollbar-gutter:stable}
+html.qcm-is-open,html.qcm-is-open body{overflow:hidden;overscroll-behavior:none}
+html.qcm-is-open body{position:fixed;top:var(--qcm-page-top,0px);left:0;right:0;width:100%}
+.trade-cleaner .mobile-bar{grid-template-columns:1fr}
+.ri-dialog{box-sizing:border-box;position:fixed;inset-inline:0;inset-block-end:auto;inset-block-start:calc(var(--qcm-vv-top,0px) + var(--qcm-vv-height,100dvh)/2);margin:0 auto;width:min(420px,calc(100% - 24px));max-width:calc(100% - 24px);max-height:calc(100vh - 24px);max-block-size:min(calc(100dvh - 24px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)),calc(var(--qcm-vv-height,100dvh) - 24px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px)));overflow-y:auto;overscroll-behavior:contain;padding:18px;background:var(--paper,#f5efe4);color:var(--ink,#121110);border:2px solid var(--ink,#121110);border-radius:5px;box-shadow:6px 6px 0 var(--ink,#121110);opacity:0;transform:translateY(calc(-50% + 5px)) scale(.985);transition:opacity .16s ease,transform .16s ease,overlay .16s allow-discrete,display .16s allow-discrete}
+.ri-dialog:not([open]){display:none}
+.ri-dialog[open]{opacity:1;transform:translateY(-50%) scale(1)}
+.ri-dialog::backdrop{background:rgb(18 17 16 / .56);transition:background-color .16s ease,overlay .16s allow-discrete,display .16s allow-discrete}
+@starting-style{.ri-dialog[open]{opacity:0;transform:translateY(calc(-50% + 5px)) scale(.985)}.ri-dialog[open]::backdrop{background:rgb(18 17 16 / 0)}}
+.ri-dialog .qcm-title{font:400 24px/1.15 var(--display);margin:0 38px 7px 0;outline:none}
+.ri-dialog .qcm-intro{font-size:14px;line-height:1.4;margin:0 0 13px;max-width:34ch}
+.ri-dialog .qcm-close{position:absolute;top:6px;right:6px;display:grid;place-items:center;width:44px;height:44px;padding:0;border:0;background:transparent;color:var(--ink);font:400 28px/1 var(--sans);cursor:pointer;border-radius:4px}
+.ri-dialog .qcm-fields{display:grid;gap:10px}
+.ri-dialog .qcm-field{display:grid;gap:4px;min-width:0}
+.ri-dialog .qcm-label{font:600 14px/1.25 var(--sans);margin:0}
+.ri-dialog .qcm-hint{font-weight:400;white-space:nowrap}
+.ri-dialog .qcm-control{box-sizing:border-box;display:block;width:100%;min-width:0;min-height:44px;height:44px;margin:0;padding:8px 10px;border:1.5px solid var(--ink);border-radius:3px;background:#fffdf8;color:var(--ink);font:400 16px/1.3 var(--sans);scroll-margin-block:10px}
+.ri-dialog .qcm-control[aria-invalid="true"]{border-color:#a32222}
+.ri-dialog .qcm-error,.ri-dialog .qcm-status{font-size:13px;line-height:1.3;color:#8d1f1f;margin:0}
+.ri-dialog .qcm-error:empty,.ri-dialog [hidden]{display:none}
+.ri-dialog .qcm-status:not([hidden]){margin:0 0 10px}
+.ri-dialog .qcm-submit{width:100%;min-height:46px;margin:14px 0 0;padding:10px 14px;font-size:16px}
+.ri-dialog :is(button,input,select):focus-visible{outline:3px solid #2f6bb9;outline-offset:3px}
+.qcm-notice{box-sizing:border-box;position:fixed;z-index:1000;inset-inline:12px;bottom:calc(86px + env(safe-area-inset-bottom,0px));max-width:420px;margin:0 auto;padding:13px 16px;background:var(--paper,#f5efe4);color:var(--ink,#121110);border:2px solid var(--ink,#121110);border-radius:4px;box-shadow:4px 4px 0 var(--ink,#121110);font:600 15px/1.4 var(--sans);pointer-events:none;opacity:0;transform:translateY(5px);transition:opacity .18s ease,transform .18s ease}
+.qcm-notice[hidden]{display:none}.qcm-notice-visible{opacity:1;transform:none}
+@media(max-width:420px){.header-cta .btn{font-size:13px;padding:8px 9px;white-space:nowrap}.site-header .brand-name{font-size:14px}.site-header .brand{gap:6px}.header-in{gap:12px}.ri-dialog{padding:16px}.ri-dialog .qcm-title{font-size:22px}.ri-dialog .qcm-fields{gap:9px}}
+@media(min-width:761px){.qcm-notice{bottom:24px}}
+@media(prefers-reduced-motion:reduce){.ri-dialog,.ri-dialog::backdrop,.qcm-notice{transition:none}}
+
+/* Non-required bot trap; never visible or keyboard-focusable. */
+.qcm-trap{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden;pointer-events:none}
+.qcm-submit:disabled{cursor:wait;opacity:.7}
+.ri-dialog .qcm-status[role="status"]{color:var(--ink,#121110)}
