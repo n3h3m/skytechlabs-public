@@ -76,8 +76,7 @@
     var status = form.querySelector('[data-status]');
     var btn = form.querySelector('[data-submit]');
     var details = form.querySelector('[data-details]');
-    form.querySelector('[data-ts]').value = String(Date.now());
-    form.querySelector('[data-page]').value = location.pathname;
+    var pg = form.querySelector('[data-page]'); if (pg) pg.value = location.origin + location.pathname;
 
     /* Topic chips: toggled buttons, sent as "details" */
     var chips = Array.prototype.slice.call(form.querySelectorAll('[data-chip]'));
@@ -127,6 +126,28 @@
     });
     function showStatus(kind, html) { status.className = 'form-status ' + kind; status.innerHTML = html; }
 
+    function pageUrl() {
+      var url = location.origin + location.pathname, keep = [];
+      try { new URLSearchParams(location.search).forEach(function (v, k) { if (/^utm_[a-z]+$/i.test(k) && keep.length < 6) keep.push(encodeURIComponent(k) + '=' + encodeURIComponent(v.slice(0, 100))); }); } catch (_) {}
+      return keep.length ? url + '?' + keep.join('&') : url;
+    }
+    /* Sends straight from the browser to the Web3Forms JSON API (same public form key as the popup; it lives in the
+       form's hidden access_key field, which is also the no-JS fallback). Delivers to the business inbox. */
+    function payload(data, ref) {
+      var email = data.intent === 'email';
+      var body = {
+        access_key: data.access_key, subject: data.subject || 'Website enquiry', from_name: data.from_name || 'SkyTech Labs website', botcheck: false,
+        Name: data.name.trim(), 'Business name': data.company.trim(), 'Phone number': data.phone.trim(),
+        'How they want to start': email ? 'Just ask a question (reply by email)' : 'Call me back',
+        'What they want help with': data.automate.trim(),
+        'Topics ticked': data.details || 'None ticked',
+        Consent: data.consent ? 'Agreed to the Privacy Policy' : 'Not given',
+        'Page URL': pageUrl(), Reference: ref
+      };
+      if (data.email.trim()) body.email = data.email.trim(); /* Web3Forms uses "email" as the reply-to address. */
+      return body;
+    }
+
     form.addEventListener('submit', function (e) {
       e.preventDefault();
       var first = null;
@@ -134,35 +155,33 @@
       if (first) { showStatus('err', '<strong>Please check the highlighted fields.</strong>'); first.focus(); return; }
       syncChips();
       var data = {};
-      new FormData(form).forEach(function (v, k) { data[k] = v; });
-      data.consent = form.elements.consent.checked ? 'yes' : '';
+      new FormData(form).forEach(function (v, k) { data[k] = typeof v === 'string' ? v : ''; });
+      data.consent = form.elements.consent.checked;
+      var fail = '<strong>Sorry, that didn\'t send.</strong><p>Your details are still here, so please try again, or call <a href="' + form.getAttribute('data-tel') + '">' + form.getAttribute('data-phone') + '</a>.</p>';
+      if (form.elements.botcheck && form.elements.botcheck.checked) { showStatus('err', fail); return; }
+      if (!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(data.access_key || '') || !window.fetch) { form.submit(); return; }
+      var ref = 'STL-' + (Date.now().toString(36) + Math.random().toString(36).slice(2, 6)).toUpperCase().slice(-8);
       var btnHtml = btn.innerHTML;
       btn.disabled = true; btn.textContent = 'Sending…';
       showStatus('', '');
-      fetch(form.action, {
-        method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(data), credentials: 'omit', mode: 'cors'
+      var ctrl = window.AbortController ? new AbortController() : null, timer = ctrl ? setTimeout(function () { ctrl.abort(); }, 20000) : 0;
+      fetch('https://api.web3forms.com/submit', {
+        method: 'POST', mode: 'cors', credentials: 'omit', referrerPolicy: 'strict-origin', signal: ctrl ? ctrl.signal : undefined,
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify(payload(data, ref))
       }).then(function (res) {
         return res.json().catch(function () { return {}; }).then(function (j) { return { status: res.status, body: j }; });
       }).then(function (r) {
-        if (r.status === 200 && r.body && r.body.ok) {
-          form.classList.add('form-done');
-          track('form_submit', { form_id: 'enquiry', intent: data.intent || '' });
-          showStatus('ok', '<strong>Thanks, ' + esc(data.name.trim().split(' ')[0]) + '. Got it.</strong>' +
-            '<p>' + (data.intent === 'email' ? 'We will reply by email.' : 'We will ring you to lock in your free 20-minute call.') +
-            ' Your reference is <strong>' + esc(r.body.ref) + '</strong>.</p>');
-          status.focus();
-        } else if (r.status === 422 && r.body && r.body.fields) {
-          var f = null;
-          Object.keys(r.body.fields).forEach(function (n) { setErr(n, r.body.fields[n]); if (!f && form.elements[n]) f = form.elements[n]; });
-          showStatus('err', '<strong>Please check the highlighted fields.</strong>');
-          if (f) f.focus();
-        } else if (r.status === 429) {
-          showStatus('err', '<strong>Too many enquiries from this connection.</strong><p>Please call <a href="' + form.getAttribute('data-tel') + '">' + form.getAttribute('data-phone') + '</a>.</p>');
-        } else { throw new Error('bad status'); }
+        if (r.status !== 200 || !r.body || r.body.success !== true) throw new Error('bad status');
+        form.classList.add('form-done');
+        track('form_submit', { form_id: 'enquiry', intent: data.intent || '' });
+        showStatus('ok', '<strong>Thanks, ' + esc(data.name.trim().split(' ')[0]) + '. Got it.</strong>' +
+          '<p>' + (data.intent === 'email' ? 'We will reply by email shortly.' : 'We will call you back shortly.') +
+          ' Your reference is <strong>' + esc(ref) + '</strong>.</p>');
+        status.focus();
       }).catch(function () {
-        showStatus('err', '<strong>Sorry, that didn\'t send.</strong><p>Please try again, or call <a href="' + form.getAttribute('data-tel') + '">' + form.getAttribute('data-phone') + '</a>.</p>');
-      }).then(function () { btn.disabled = false; if (btn.textContent === 'Sending…') btn.innerHTML = btnHtml; });
+        showStatus('err', fail);
+      }).then(function () { clearTimeout(timer); btn.disabled = false; if (btn.textContent === 'Sending…') btn.innerHTML = btnHtml; });
     });
   }
   /* Trade-page self-check: counts ticks locally, nothing is sent anywhere */
