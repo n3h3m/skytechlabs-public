@@ -2,9 +2,9 @@
  * Submits from the browser to the Web3Forms JSON API (same public form as the rest of the site).
  * Never sends a top-level "email" key: use "Visitor email" and "replyto" only.
  *
- * Meta Pixel: leave PIXEL_ID empty to keep it off. Set it to the pixel ID from Meta Ads
- * to load fbevents.js, fire PageView, and fire Lead after a successful submit.
- * CSP on this page already allows https://connect.facebook.net (script-src) and
+ * Meta Pixel ID is set and the pixel is on. It loads fbevents.js, fires PageView on load,
+ * and fires Lead only after Web3Forms returns HTTP 200 with success:true (never on click).
+ * CSP on this page allows https://connect.facebook.net (script-src) and
  * https://www.facebook.com plus https://connect.facebook.net (connect-src and img-src).
  * After changing PIXEL_ID, bump the ?v= hash on the script tag in index.html.
  * Conversions API is not included. This site is static GitHub Pages, and CAPI needs a
@@ -13,7 +13,7 @@
 (function () {
   'use strict';
   var ENDPOINT = 'https://api.web3forms.com/submit';
-  var PIXEL_ID = '';
+  var PIXEL_ID = '2305271023383422';
   var EMAIL_RE = /^[^\s@<>()[\]\\,;:"]{1,64}@[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)+$/;
   var PHONE_RE = /^\+?[0-9 ()-]{8,20}$/;
   var UTM_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'fbclid'];

@@ -11,7 +11,7 @@
 <meta name="color-scheme" content="light">
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://connect.facebook.net; style-src 'self'; img-src 'self' data: https://www.facebook.com; font-src 'self'; connect-src 'self' https://api.web3forms.com https://www.facebook.com https://connect.facebook.net; form-action 'self' https://api.web3forms.com; base-uri 'self'; object-src 'none'; frame-src 'none'">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<!-- Meta Pixel is off until PIXEL_ID is set in /assets/js/adset1.js. CSP already allows connect.facebook.net and facebook.com. After setting the ID, bump the adset1.js ?v= hash. Conversions API needs a small server (for example a Cloudflare Worker) and is not included on this static GitHub Pages site. -->
+<!-- Meta Pixel is on (PIXEL_ID in /assets/js/adset1.js). PageView fires on load; Lead fires only after a successful Web3Forms submit. CSP allows connect.facebook.net (script-src) and www.facebook.com (img-src, connect-src). Conversions API is not included: this static GitHub Pages site would need a small server (for example a Cloudflare Worker). -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="SkyTech Labs">
 <meta property="og:locale" content="en_AU">
@@ -34,7 +34,7 @@
 <link rel="preload" href="/assets/fonts/inter-var-sub.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/css/site.css?v=67794bf94b13">
 <link rel="stylesheet" href="/assets/css/adset1.css?v=4c9db9aaf19d">
-<script src="/assets/js/adset1.js?v=8fa0fc0cc07d" defer></script>
+<script src="/assets/js/adset1.js?v=c7b84d82ba3e" defer></script>
 </head>
 <body>
 <a class="skip" href="#offer-form">Skip to the offer form</a>
