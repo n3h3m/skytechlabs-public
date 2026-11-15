@@ -1,0 +1,19 @@
+/* DIY Guides: header button, secondary links and the /diy-guides/ hub. Loaded on every page. */
+.header-diy{white-space:nowrap;gap:.3em}
+.site-header .brand{flex:none}
+@media (max-width:760px){.header-cta{gap:10px}}
+@media (max-width:420px){.site-header .brand-name{display:none}}
+@media (max-width:379px){.header-in{gap:8px}.header-cta{gap:8px}.header-diy .diy-more{display:none}}
+@media (max-width:340px){.site-header .brand-logo img{width:38px}.header-cta{gap:6px}.header-cta .btn{padding:8px 7px;font-size:13.5px}}
+.diy-aside{margin:18px 0 0;font-weight:700}
+.diy-aside a{font-weight:800}
+.gate-unsure .diy-aside{margin-top:26px;font-size:18px}
+.band-ink .diy-aside{color:#e9e1d5}
+.band-ink .diy-aside a{color:var(--paper)}
+.diy-list{list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;margin:32px 0 0;padding:0}
+.diy-card{position:relative;background:var(--paper);border:var(--b) solid var(--ink);box-shadow:6px 6px 0 var(--ink);padding:22px 22px 24px}
+.diy-card h3{font:400 22px/1.2 var(--display);color:var(--ink);margin:14px 0 8px}
+.diy-card p{margin:0;color:var(--ink-2)}
+.diy-soon{display:inline-block;font:800 13px/1.2 var(--sans);letter-spacing:.06em;text-transform:uppercase;padding:6px 10px;background:var(--accent-tint);border:2px solid var(--ink);color:var(--ink)}
+.diy-note{margin:32px 0 0;font-weight:600;color:var(--ink-2);max-width:60ch}
+@media (max-width:760px){.diy-list{grid-template-columns:1fr;gap:18px}.diy-card{padding:18px 18px 20px}}
