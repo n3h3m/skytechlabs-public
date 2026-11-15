@@ -33,8 +33,8 @@
 <link rel="preload" href="/assets/fonts/archivo-black-sub.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/inter-var-sub.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="/assets/css/site.css?v=67794bf94b13">
-<link rel="stylesheet" href="/assets/css/adset1.css?v=4c9db9aaf19d">
-<script src="/assets/js/adset1.js?v=c7b84d82ba3e" defer></script>
+<link rel="stylesheet" href="/assets/css/adset1.css?v=538ccb3ccd44">
+<script src="/assets/js/adset1.js?v=8f04bc3f0cc8" defer></script>
 </head>
 <body>
 <a class="skip" href="#offer-form">Skip to the offer form</a>
@@ -63,41 +63,42 @@
       <div class="adset-card" id="offer-form">
         <h2 class="adset-card-title">Get offer</h2>
         <form class="eform adset-form" id="adset1-form" data-clarity-mask="True" action="https://api.web3forms.com/submit" method="post" novalidate data-adset1-form>
-          <div class="fgrid">
+          <fieldset class="adset-q">
+            <legend>What type of business do you run? <span class="req" aria-hidden="true">*</span></legend>
+            <div class="adset-opts" role="radiogroup" aria-required="true" aria-describedby="f-industry-err">
+              <label class="adset-opt"><input type="radio" name="industry" value="Trades or home services" required><span>Trades or home services</span></label>
+              <label class="adset-opt"><input type="radio" name="industry" value="Cleaning or detailing"><span>Cleaning or detailing</span></label>
+              <label class="adset-opt"><input type="radio" name="industry" value="Health, beauty or wellness"><span>Health, beauty or wellness</span></label>
+              <label class="adset-opt"><input type="radio" name="industry" value="Other local service business"><span>Other local service business</span></label>
+              <label class="adset-opt"><input type="radio" name="industry" value="Online or e-commerce store"><span>Online or e-commerce store</span></label>
+            </div>
+            <p class="ferr" id="f-industry-err" aria-live="polite"></p>
+          </fieldset>
+          <fieldset class="adset-q">
+            <legend>How long have you been in business? <span class="req" aria-hidden="true">*</span></legend>
+            <div class="adset-opts" role="radiogroup" aria-required="true" aria-describedby="f-years-err">
+              <label class="adset-opt"><input type="radio" name="years" value="Not started yet" required><span>Not started yet</span></label>
+              <label class="adset-opt"><input type="radio" name="years" value="Under 1 year"><span>Under 1 year</span></label>
+              <label class="adset-opt"><input type="radio" name="years" value="1 to 3 years"><span>1 to 3 years</span></label>
+              <label class="adset-opt"><input type="radio" name="years" value="3+ years"><span>3+ years</span></label>
+            </div>
+            <p class="ferr" id="f-years-err" aria-live="polite"></p>
+          </fieldset>
+          <div class="adset-contact">
             <div class="field">
-              <label for="f-name">Your name <span class="req" aria-hidden="true">*</span></label>
+              <label for="f-name">Name <span class="req" aria-hidden="true">*</span></label>
               <input id="f-name" data-clarity-mask="True" name="name" type="text" autocomplete="name" required maxlength="100" aria-describedby="f-name-err">
               <p class="ferr" id="f-name-err" aria-live="polite"></p>
-            </div>
-            <div class="field">
-              <label for="f-company">Business name <span class="req" aria-hidden="true">*</span></label>
-              <input id="f-company" data-clarity-mask="True" name="company" type="text" autocomplete="organization" required maxlength="120" aria-describedby="f-company-err">
-              <p class="ferr" id="f-company-err" aria-live="polite"></p>
-            </div>
-            <div class="field field-full">
-              <label for="f-industry">Business type or industry <span class="req" aria-hidden="true">*</span></label>
-              <input id="f-industry" data-clarity-mask="True" name="industry" type="text" autocomplete="organization-title" required maxlength="120" placeholder="e.g. cleaning, car detailing" aria-describedby="f-industry-err">
-              <p class="ferr" id="f-industry-err" aria-live="polite"></p>
-            </div>
-            <div class="field">
-              <label for="f-phone">Mobile <span class="req" aria-hidden="true">*</span></label>
-              <input id="f-phone" data-clarity-mask="True" name="phone" type="tel" autocomplete="tel" inputmode="tel" required maxlength="30" pattern="\+?[0-9 ()\-]{8,20}" aria-describedby="f-phone-err">
-              <p class="ferr" id="f-phone-err" aria-live="polite"></p>
             </div>
             <div class="field">
               <label for="f-email">Email <span class="req" aria-hidden="true">*</span></label>
               <input id="f-email" data-clarity-mask="True" name="replyto" type="email" autocomplete="email" inputmode="email" required maxlength="254" aria-describedby="f-email-err">
               <p class="ferr" id="f-email-err" aria-live="polite"></p>
             </div>
-            <div class="field field-full">
-              <label for="f-suburb">Suburb <span class="req" aria-hidden="true">*</span></label>
-              <input id="f-suburb" data-clarity-mask="True" name="suburb" type="text" autocomplete="address-level2" required maxlength="80" aria-describedby="f-suburb-err">
-              <p class="ferr" id="f-suburb-err" aria-live="polite"></p>
-            </div>
-            <div class="field field-full">
-              <label for="f-need">What do you need? <span class="opt">(optional)</span></label>
-              <textarea id="f-need" data-clarity-mask="True" name="need" rows="2" maxlength="2000" aria-describedby="f-need-hint"></textarea>
-              <p class="fhint" id="f-need-hint">A sentence or two is plenty. Tell us anything that would help.</p>
+            <div class="field">
+              <label for="f-phone">Mobile <span class="req" aria-hidden="true">*</span></label>
+              <input id="f-phone" data-clarity-mask="True" name="phone" type="tel" autocomplete="tel" inputmode="tel" required maxlength="30" pattern="\+?[0-9 ()\-]{8,20}" aria-describedby="f-phone-err">
+              <p class="ferr" id="f-phone-err" aria-live="polite"></p>
             </div>
           </div>
           <input type="hidden" name="access_key" value="49d5b91a-6bfc-4332-9e40-f1b10483c898">
@@ -113,10 +114,6 @@
           <input type="hidden" name="utm_term" value="">
           <input type="hidden" name="fbclid" value="">
           <div class="hp" aria-hidden="true"><label for="f-botcheck">Leave this box unticked</label><input id="f-botcheck" name="botcheck" type="checkbox" tabindex="-1" autocomplete="off"></div>
-          <div class="field consent">
-            <label class="check"><input id="f-consent" name="consent" type="checkbox" value="yes" required aria-describedby="f-consent-err"><span>I agree to SkyTech Labs using these details to respond to my enquiry, as set out in the <a href="/privacy/">Privacy Policy</a>. <span class="req" aria-hidden="true">*</span></span></label>
-            <p class="ferr" id="f-consent-err" aria-live="polite"></p>
-          </div>
           <div class="form-foot">
             <button class="btn btn-lg btn-block" type="submit" data-submit>Get offer</button>
             <p class="fnote">No obligation. Your details are only used to reply to you.</p>

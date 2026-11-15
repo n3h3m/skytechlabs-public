@@ -89,33 +89,43 @@
     }
 
     var rules = {
+      industry: function (v) { return String(v || '').trim() ? '' : 'Please choose the type of business you run.'; },
+      years: function (v) { return String(v || '').trim() ? '' : 'Please choose how long you have been in business.'; },
       name: function (v) { v = v.trim(); return v.length >= 2 && v.length <= 100 && !CTRL.test(v) ? '' : 'Please enter your name.'; },
-      company: function (v) { v = v.trim(); return v.length >= 2 && v.length <= 120 && !CTRL.test(v) ? '' : 'Please enter your business name.'; },
-      industry: function (v) { v = v.trim(); return v.length >= 2 && v.length <= 120 && !CTRL.test(v) ? '' : 'Please enter your business type or industry.'; },
-      phone: function (v) { v = v.trim(); return PHONE_RE.test(v) && v.replace(/\D/g, '').length >= 8 ? '' : 'Please enter a valid mobile number.'; },
       replyto: function (v) { return EMAIL_RE.test(v.trim()) ? '' : 'Please enter a valid email address.'; },
-      suburb: function (v) { v = v.trim(); return v.length >= 2 && v.length <= 80 && !CTRL.test(v) ? '' : 'Please enter your suburb.'; },
-      consent: function (v, el) { return el.checked ? '' : 'Please tick the box so we can reply to you.'; }
+      phone: function (v) { v = v.trim(); return PHONE_RE.test(v) && v.replace(/\D/g, '').length >= 8 ? '' : 'Please enter a valid mobile number.'; }
     };
 
-    function setErr(name, msg) {
+    function nodesFor(name) {
       var el = form.elements[name];
+      if (!el) return [];
+      if (el.length !== undefined && el[0] && el[0].type === 'radio') return Array.prototype.slice.call(el);
+      return [el];
+    }
+    function valueFor(name) {
+      var el = form.elements[name];
+      return el ? String(el.value || '') : '';
+    }
+    function firstControl(name) {
+      var nodes = nodesFor(name);
+      return nodes[0] || null;
+    }
+    function setErr(name, msg) {
       var out = document.getElementById('f-' + (name === 'replyto' ? 'email' : name) + '-err');
-      if (el) el.setAttribute('aria-invalid', msg ? 'true' : 'false');
+      nodesFor(name).forEach(function (node) { node.setAttribute('aria-invalid', msg ? 'true' : 'false'); });
       if (out) out.textContent = msg || '';
     }
     function check(name) {
-      var el = form.elements[name];
-      var msg = rules[name](el.value || '', el);
+      var msg = rules[name](valueFor(name), form.elements[name]);
       setErr(name, msg);
       return msg;
     }
     Object.keys(rules).forEach(function (name) {
-      var el = form.elements[name];
-      if (!el) return;
-      el.addEventListener('blur', function () { if (el.value || el.type === 'checkbox') check(name); });
-      el.addEventListener('input', function () { if (el.getAttribute('aria-invalid') === 'true') check(name); });
-      el.addEventListener('change', function () { if (el.getAttribute('aria-invalid') === 'true') check(name); });
+      nodesFor(name).forEach(function (node) {
+        node.addEventListener('blur', function () { if (node.value || node.type === 'radio' || node.type === 'checkbox') check(name); });
+        node.addEventListener('input', function () { if (node.getAttribute('aria-invalid') === 'true') check(name); });
+        node.addEventListener('change', function () { check(name); });
+      });
     });
 
     function showStatus(kind, html) {
@@ -126,17 +136,14 @@
     function payload(data, ref) {
       var body = {
         access_key: data.access_key,
-        subject: 'Meta ad lead (adset1): ' + data.company.trim(),
+        subject: 'Meta ad lead (adset1): ' + data.name.trim(),
         from_name: data.from_name || 'SkyTech Labs website',
         botcheck: false,
         Name: data.name.trim(),
-        'Business name': data.company.trim(),
-        'Business type': data.industry.trim(),
+        'What type of business do you run?': (data.industry || '').trim(),
+        'How long have you been in business?': (data.years || '').trim(),
         'Phone number': data.phone.trim(),
-        Suburb: data.suburb.trim(),
-        'What they need': (data.need || '').trim() || 'Not given',
         Source: 'adset1',
-        Consent: data.consent ? 'Agreed to the Privacy Policy' : 'Not given',
         'Page URL': pageUrl(),
         Reference: ref
       };
@@ -154,11 +161,10 @@
       e.preventDefault();
       fillTracking(form);
       var first = null;
-      Object.keys(rules).forEach(function (n) { if (check(n) && !first) first = form.elements[n]; });
+      Object.keys(rules).forEach(function (n) { if (check(n) && !first) first = firstControl(n); });
       if (first) { showStatus('err', '<strong>Please check the highlighted fields.</strong>'); first.focus(); return; }
       var data = {};
       new FormData(form).forEach(function (v, k) { data[k] = typeof v === 'string' ? v : ''; });
-      data.consent = form.elements.consent.checked;
       var fail = '<strong>Sorry, that did not send.</strong><p>Your details are still here, so please try again in a moment.</p>';
       if (form.elements.botcheck && form.elements.botcheck.checked) { showStatus('err', fail); return; }
       if (!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(data.access_key || '') || !window.fetch) {
