@@ -55,8 +55,10 @@
       'Industry source':industry ? 'Set by the page they were reading' : 'Entered by the visitor',
       'Time in business':String(data.years).trim(),
       Request:'Please call me back.','Page URL':pageUrl(loc),Reference:reference};
-    if (String(data.email || '').trim()) body.email = String(data.email).trim(); // Web3Forms uses "email" as reply-to.
-    else body.Email = 'Not given';
+    // Never send a top-level "email" key: Web3Forms' free spam filter silently drops some (e.g. Gmail) addresses there.
+    // "replyto" sets the Reply-To header instead.
+    if (String(data.email || '').trim()) { body['Visitor email'] = String(data.email).trim(); body.replyto = String(data.email).trim(); }
+    else body['Visitor email'] = 'Not given';
     return body;
   }
   function validAccessKey(value) { return /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(String(value || '')); }

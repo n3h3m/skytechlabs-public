@@ -17,3 +17,6 @@
 .diy-soon{display:inline-block;font:800 13px/1.2 var(--sans);letter-spacing:.06em;text-transform:uppercase;padding:6px 10px;background:var(--accent-tint);border:2px solid var(--ink);color:var(--ink)}
 .diy-note{margin:32px 0 0;font-weight:600;color:var(--ink-2);max-width:60ch}
 @media (max-width:760px){.diy-list{grid-template-columns:1fr;gap:18px}.diy-card{padding:18px 18px 20px}}
+/* Direct calling retired (16 Nov 2026): the sticky mobile bar holds only the Register-your-interest button. */
+.mobile-bar{grid-template-columns:1fr}
+.mb-book{border-right:0}

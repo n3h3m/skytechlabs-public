@@ -109,11 +109,11 @@
       name: function (v) { return v.trim().length >= 2 ? '' : 'Please enter your name.'; },
       company: function (v) { return v.trim().length >= 2 ? '' : 'Please enter your business name.'; },
       phone: function (v) { v = v.trim(); return PHONE_RE.test(v) && v.replace(/\D/g, '').length >= 8 ? '' : 'Please enter a valid phone number.'; },
-      email: function (v) { return EMAIL_RE.test(v.trim()) ? '' : 'Please enter a valid email address.'; },
+      replyto: function (v) { return EMAIL_RE.test(v.trim()) ? '' : 'Please enter a valid email address.'; },
       consent: function (v, el) { return el.checked ? '' : 'Please tick the box so we can reply to you.'; }
     };
     function setErr(name, msg) {
-      var el = form.elements[name], out = document.getElementById('f-' + name + '-err');
+      var el = form.elements[name], out = document.getElementById('f-' + (name === 'replyto' ? 'email' : name) + '-err');
       if (el) el.setAttribute('aria-invalid', msg ? 'true' : 'false');
       if (out) out.textContent = msg || '';
     }
@@ -144,7 +144,10 @@
         Consent: data.consent ? 'Agreed to the Privacy Policy' : 'Not given',
         'Page URL': pageUrl(), Reference: ref
       };
-      if (data.email.trim()) body.email = data.email.trim(); /* Web3Forms uses "email" as the reply-to address. */
+      /* Never a top-level "email" key (Web3Forms' free spam filter silently drops some, e.g. Gmail, addresses there);
+         "replyto" sets the Reply-To header. The input itself is named "replyto" so the no-JS POST behaves the same. */
+      var em = (data.replyto || '').trim();
+      if (em) { body['Visitor email'] = em; body.replyto = em; } else body['Visitor email'] = 'Not given';
       return body;
     }
 
@@ -157,7 +160,7 @@
       var data = {};
       new FormData(form).forEach(function (v, k) { data[k] = typeof v === 'string' ? v : ''; });
       data.consent = form.elements.consent.checked;
-      var fail = '<strong>Sorry, that didn\'t send.</strong><p>Your details are still here, so please try again, or call <a href="' + form.getAttribute('data-tel') + '">' + form.getAttribute('data-phone') + '</a>.</p>';
+      var fail = '<strong>Sorry, that didn\'t send.</strong><p>Your details are still here, so please try again in a moment.</p>';
       if (form.elements.botcheck && form.elements.botcheck.checked) { showStatus('err', fail); return; }
       if (!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(data.access_key || '') || !window.fetch) { form.submit(); return; }
       var ref = 'STL-' + (Date.now().toString(36) + Math.random().toString(36).slice(2, 6)).toUpperCase().slice(-8);
