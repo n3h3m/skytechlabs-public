@@ -30,6 +30,11 @@ Email: hello@skytechlabs.com.au · Sydney, NSW, Australia
 - [AI Agents for accountants and bookkeepers](https://skytechlabs.com.au/who-we-help/accountant/)
 - [AI Agents for hair and beauty salons](https://skytechlabs.com.au/who-we-help/salon/)
 - [Websites and getting online](https://skytechlabs.com.au/get-online/)
-- [DIY Guides](https://skytechlabs.com.au/diy-guides/): free how-to guides for small-business owners (first guides coming soon)
+- [DIY Guides](https://skytechlabs.com.au/diy-guides/): free step-by-step how-to guides for small-business owners
+  - [Set up your Google Business Profile, step by step](https://skytechlabs.com.au/diy-guides/google-business-profile/)
+  - [Stop losing jobs to missed calls: auto-replies and a better voicemail](https://skytechlabs.com.au/diy-guides/missed-call-auto-reply/)
+  - [Write a proper Australian tax invoice, and send it for free](https://skytechlabs.com.au/diy-guides/tax-invoice/)
+  - [Use ChatGPT in your business without leaking customer details](https://skytechlabs.com.au/diy-guides/chatgpt-safely/)
+  - [Build a simple one-page business website yourself](https://skytechlabs.com.au/diy-guides/diy-website/)
 - [Contact](https://skytechlabs.com.au/contact/)
 - [Privacy](https://skytechlabs.com.au/privacy/)
